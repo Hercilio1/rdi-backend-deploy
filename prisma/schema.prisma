@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+model Fundo {
+  id              Int                 @id @default(autoincrement())
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  cnpj_fundo      String              @unique
+  updates         Fundo_Update[]
+  auditor         String?
+  cnpj_auditor    String?
+  denom_social    String?
+  dt_const        DateTime?
+  dt_cancel       DateTime?
+  admin           String?
+  cd_cvm          String?
+  dt_fim_exerc    DateTime?
+  classe          String?
+  dt_ini_ativ     DateTime?
+  cnpj_admin      String?
+  dt_ini_classe   DateTime?
+  dt_ini_exerc    DateTime?
+  condom          String?
+  dt_ini_sit      DateTime?
+  cpf_cnpj_gestor String?
+  sit             String?
+  rentab_fundo    String?
+  pf_pj_gestor    String?
+  invest_qualif   String?
+  vl_patrim_liq   String?
+  gestor          String?
+  trib_lprazo     String?
+  fundo_exclusivo String?
+  tp_fundo        String?
+  fundo_cotas     String?
+  taxa_perfm      String?
+  dt_patrim_liq   DateTime?
+  taxa_adm        String?
+}
+
+model Fundo_Update {
+  id              Int                 @id @default(autoincrement())
+  cnpj_fundo      String
+  vlr_total       String?
+  vlt_quota       String?
+  captc_dia       String?
+  resg_dia        String?
+  rentabilidade   String?
+  tp_fundo        String?
+  dt_comptc       DateTime?
+  vl_patrim_liq   String?
+  nr_cotst        String?
+  Fundo           Fundo @relation(fields: [cnpj_fundo], references: [cnpj_fundo])
+}
