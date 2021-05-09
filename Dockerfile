@@ -1,11 +1,11 @@
 FROM node:15-alpine AS builder
 
-WORKDIR /app
-
-# Add `/app/node_modules/.bin` to $PATH
 ARG DATABASE_URL
 ARG API_KEY
 
+WORKDIR /app
+
+# Add `/app/node_modules/.bin` to $PATH
 ENV PATH /app/node_modules/.bin:$PATH
 ENV NODE_ENV=production
 
@@ -22,7 +22,7 @@ RUN npx prisma generate
 # Sync the migrations
 RUN npx prisma migrate deploy
 
-Add app
+# Add app
 COPY . /app
 
 # Build the app
