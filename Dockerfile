@@ -1,25 +1,32 @@
 FROM node:15-alpine AS builder
 
-WORKDIR /app
+ENV DATABASE_URL $db_url
+ENV API_KEY $api_key
 
-# Add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
-ENV NODE_ENV=production
-ENV DATABASE_URL=$DATABASE_URL
-ENV API_KEY=$API_KEY
+RUN echo $DATABASE_URL
+RUN echo $API_KEY
 
-RUN apk update \
-    && apk add dumb-init
 
-COPY package.json /app/package.json
-COPY prisma /app/prisma/
+# WORKDIR /app
 
-RUN npm install
+# # Add `/app/node_modules/.bin` to $PATH
+# ENV PATH /app/node_modules/.bin:$PATH
+# ENV NODE_ENV=production
+# ENV DATABASE_URL=$db_url
+# ENV API_KEY=$api_key
 
-# Generate prisma
-RUN npx prisma generate
-# Sync the migrations
-RUN npx prisma migrate deploy
+# RUN apk update \
+#     && apk add dumb-init
+
+# COPY package.json /app/package.json
+# COPY prisma /app/prisma/
+
+# RUN npm install
+
+# # Generate prisma
+# RUN npx prisma generate
+# # Sync the migrations
+# RUN npx prisma migrate deploy
 
 # Add app
 COPY . /app
