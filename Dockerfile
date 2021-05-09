@@ -5,6 +5,8 @@ WORKDIR /app
 # Add `/app/node_modules/.bin` to $PATH
 ENV PATH /app/node_modules/.bin:$PATH
 ENV NODE_ENV=production
+ENV DATABASE_URL=$DATABASE_URL
+ENV API_KEY=$API_KEY
 
 RUN apk update \
     && apk add dumb-init
