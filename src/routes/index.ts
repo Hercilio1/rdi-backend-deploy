@@ -1,14 +1,14 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { addFundInfo, fundUpdate, getFunds } from '../controllers/fund';
 import authentication from '../middleware/authentication';
 
 const routes = express.Router();
 
-routes.get('/', (req, res) => {
+routes.get('/', (req: Request, res: Response) => {
   res.send('Hello world');
 });
 
-routes.get('/pesquisa', async (req, res) => {
+routes.get('/pesquisa', async (req: Request, res: Response) => {
   try {
     const param = req.query;
     const fundos = await getFunds(
@@ -25,7 +25,7 @@ routes.get('/pesquisa', async (req, res) => {
 
 routes.use(authentication);
 
-routes.post('/fundo', (req, res) => {
+routes.post('/fundo', (req: Request, res: Response) => {
   try {
     addFundInfo(req.body);
     res.status(200).send();
@@ -36,7 +36,7 @@ routes.post('/fundo', (req, res) => {
   }
 });
 
-routes.post('/update', (req, res) => {
+routes.post('/update', (req: Request, res: Response) => {
   try {
     fundUpdate(req.body);
     res.status(200).send();
