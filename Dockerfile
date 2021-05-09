@@ -1,9 +1,8 @@
 FROM node:15-alpine AS builder
 
-ENV DATABASE_URL=$db_url
-ENV API_KEY=$api_key
-ENV TEST=$test
-
+ARG DATABASE_URL
+ARG API_KEY
+ARG TEST
 
 RUN echo $DATABASE_URL
 RUN echo $API_KEY
