@@ -3,10 +3,11 @@ FROM node:15-alpine AS builder
 WORKDIR /app
 
 # Add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
-ENV NODE_ENV=production
 ARG DATABASE_URL
 ARG API_KEY
+
+ENV PATH /app/node_modules/.bin:$PATH
+ENV NODE_ENV=production
 
 RUN apk update \
     && apk add dumb-init
