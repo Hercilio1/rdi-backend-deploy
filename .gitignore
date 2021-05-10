@@ -223,11 +223,10 @@ fabric.properties
 
 # Yarn
 yarn.lock
+package-lock.json
 
 # Build
 build
 
 # Secret file
 postgres_connection_secret.yaml
-
-package-lock.json
