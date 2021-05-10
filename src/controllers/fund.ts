@@ -110,7 +110,7 @@ export const addFundInfo = async (file: IFunds): Promise<void> => {
         },
       });
     } catch (e) {
-      console.log(`Fund insersion error: ${e}`);
+      console.log(`Fund insertion error: ${line[0]}`);
     }
   }
 };
