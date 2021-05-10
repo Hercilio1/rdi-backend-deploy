@@ -229,3 +229,5 @@ build
 
 # Secret file
 postgres_connection_secret.yaml
+
+package-lock.json
