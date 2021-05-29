@@ -1,6 +1,19 @@
 import fs from 'fs';
 import { PrismaClient } from '@prisma/client';
 
+
+interface IUpdate {
+    cnpj_fundo: string;
+    tp_fundo: string;
+    dt_comptc: string;
+    vlr_total: string;
+    vlt_quota: string;
+    vl_patrim_liq: string;
+    captc_dia: string;
+    resg_dia: string;
+    nr_cotst: string;
+}
+
 interface IFunds {
   cnpj_fundo: string;
   auditor: string;
@@ -56,6 +69,26 @@ async function main() {
           taxa_adm: String(fund.taxa_adm),
           taxa_perfm: String(fund.taxa_perfm),
           vl_patrim_liq: String(fund.vl_patrim_liq),
+        },
+      });
+    })
+  );
+  const updates = fs.readFileSync('prisma/fundosUpdatesMock.json', 'utf-8');
+  const parsedUpdates: IUpdate[] = JSON.parse(updates);
+
+  await Promise.all(
+    parsedUpdates.map(async (update) => {
+      await prisma.fundo_Update.create({
+        data: {
+            ...update,
+            vlr_total: String(update.vlr_total),
+            vlt_quota: String(update.vlt_quota),
+            captc_dia: String(update.captc_dia),
+            resg_dia: String(update.resg_dia),
+            tp_fundo: String(update.tp_fundo),
+            dt_comptc: new Date(update.dt_comptc) || null,
+            vl_patrim_liq: String(update.vl_patrim_liq),
+            nr_cotst: String(update.nr_cotst)
         },
       });
     })

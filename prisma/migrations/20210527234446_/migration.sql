@@ -45,7 +45,6 @@ CREATE TABLE "Fundo_Update" (
     "vlt_quota" TEXT,
     "captc_dia" TEXT,
     "resg_dia" TEXT,
-    "rentabilidade" TEXT,
     "tp_fundo" TEXT,
     "dt_comptc" TIMESTAMP(3),
     "vl_patrim_liq" TEXT,
@@ -56,6 +55,9 @@ CREATE TABLE "Fundo_Update" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Fundo.cnpj_fundo_unique" ON "Fundo"("cnpj_fundo");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Fundo_Update.cnpj_fundo_dt_comptc_unique" ON "Fundo_Update"("cnpj_fundo", "dt_comptc");
 
 -- AddForeignKey
 ALTER TABLE "Fundo_Update" ADD FOREIGN KEY ("cnpj_fundo") REFERENCES "Fundo"("cnpj_fundo") ON DELETE CASCADE ON UPDATE CASCADE;

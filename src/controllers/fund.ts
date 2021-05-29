@@ -1,6 +1,11 @@
-import { Fundo } from '@prisma/client';
 import prisma from '../database/prisma';
-import { IFunds, IUpdate } from './interface';
+import {
+  IFunds,
+  IInitialFundData,
+  IUpdate,
+  IFundDetails,
+  IRentability,
+} from './interface';
 
 export const addFundInfo = async (file: IFunds): Promise<void> => {
   const funds = Object.entries(file);
@@ -118,7 +123,7 @@ export const addFundInfo = async (file: IFunds): Promise<void> => {
 export const getFunds = async (
   search?: string,
   skip?: string
-): Promise<Fundo[]> => {
+): Promise<IInitialFundData[]> => {
   const fundos = await prisma.fundo.findMany({
     where: {
       OR: [
@@ -136,17 +141,32 @@ export const getFunds = async (
         },
       ],
     },
+    select: {
+      denom_social: true,
+      cnpj_fundo: true,
+      vl_patrim_liq: true,
+      classe: true,
+      updates: {
+        select: {
+          nr_cotst: true,
+        },
+      },
+    },
     take: 50,
     skip: skip ? parseInt(skip, 10) : 0,
   });
-  return fundos;
+  return fundos.map((fund) => ({
+    ...fund,
+    updates: undefined,
+    nr_cotst: fund.updates[fund.updates.length - 1]?.nr_cotst,
+  }));
 };
 
-export const fundUpdate = async (file: IUpdate): Promise<void> => {
-  const funds = Object.entries(file);
+export const fundUpdate = async (file: IUpdate[]): Promise<void> => {
   // eslint-disable-next-line
-  for (const line of funds) {
+  for (const line of file) {
     const {
+      CNPJ_FUNDO,
       TP_FUNDO,
       DT_COMPTC,
       VL_TOTAL,
@@ -155,32 +175,172 @@ export const fundUpdate = async (file: IUpdate): Promise<void> => {
       CAPTC_DIA,
       RESG_DIA,
       NR_COTST,
-    } = line[1];
+    } = line;
 
     try {
       // eslint-disable-next-line
       await prisma.fundo.update({
         where: {
-          cnpj_fundo: line[0],
+          cnpj_fundo: String(CNPJ_FUNDO),
         },
         data: {
           updates: {
-            create: {
-              vlr_total: String(VL_TOTAL),
-              vlt_quota: String(VL_QUOTA),
-              captc_dia: String(CAPTC_DIA),
-              resg_dia: String(RESG_DIA),
-              rentabilidade: '',
-              tp_fundo: TP_FUNDO,
-              dt_comptc: new Date(DT_COMPTC) || null,
-              vl_patrim_liq: String(VL_PATRIM_LIQ),
-              nr_cotst: String(NR_COTST),
+            upsert: {
+              where: {
+                cnpj_fundo_dt_comptc: {
+                  cnpj_fundo: CNPJ_FUNDO,
+                  dt_comptc: new Date(DT_COMPTC),
+                },
+              },
+              update: {
+                vlr_total: String(VL_TOTAL),
+                vlt_quota: String(VL_QUOTA),
+                captc_dia: String(CAPTC_DIA),
+                resg_dia: String(RESG_DIA),
+                tp_fundo: TP_FUNDO,
+                dt_comptc: new Date(DT_COMPTC) || null,
+                vl_patrim_liq: String(VL_PATRIM_LIQ),
+                nr_cotst: String(NR_COTST),
+              },
+              create: {
+                vlr_total: String(VL_TOTAL),
+                vlt_quota: String(VL_QUOTA),
+                captc_dia: String(CAPTC_DIA),
+                resg_dia: String(RESG_DIA),
+                tp_fundo: TP_FUNDO,
+                dt_comptc: new Date(DT_COMPTC) || null,
+                vl_patrim_liq: String(VL_PATRIM_LIQ),
+                nr_cotst: String(NR_COTST),
+              },
             },
           },
         },
       });
     } catch (e) {
-      console.log(`Fund update error: ${line[0]}`);
+      console.log(`Fund update error: ${CNPJ_FUNDO}`);
     }
   }
+};
+
+export const getFundDetails = async (
+  cnpj: string
+): Promise<IFundDetails | Record<string, never>> => {
+  const fundosDetail = await prisma.fundo.findFirst({
+    where: {
+      cnpj_fundo: cnpj,
+    },
+    select: {
+      denom_social: true,
+      cnpj_fundo: true,
+      classe: true,
+      vl_patrim_liq: true,
+      tp_fundo: true,
+      sit: true,
+      dt_ini_ativ: true,
+      admin: true,
+      cd_cvm: true,
+      cnpj_admin: true,
+      condom: true,
+      cpf_cnpj_gestor: true,
+      dt_cancel: true,
+      dt_const: true,
+      dt_fim_exerc: true,
+      dt_ini_classe: true,
+      dt_ini_exerc: true,
+      dt_ini_sit: true,
+      dt_patrim_liq: true,
+      fundo_cotas: true,
+      fundo_exclusivo: true,
+      gestor: true,
+      invest_qualif: true,
+      pf_pj_gestor: true,
+      rentab_fundo: true,
+      taxa_adm: true,
+      taxa_perfm: true,
+      trib_lprazo: true,
+      auditor: true,
+      cnpj_auditor: true,
+      updates: {
+        select: {
+          tp_fundo: true,
+          dt_comptc: true,
+          vlr_total: true,
+          vlt_quota: true,
+          captc_dia: true,
+          resg_dia: true,
+          nr_cotst: true,
+        },
+      },
+    },
+  });
+
+  let response = {};
+
+  if (fundosDetail) {
+    response = {
+      ...fundosDetail,
+      updates: undefined,
+      tp_fundo: fundosDetail.updates[fundosDetail.updates.length - 1].tp_fundo,
+      dt_comptc:
+        fundosDetail.updates[fundosDetail.updates.length - 1].dt_comptc,
+      vlr_total:
+        fundosDetail.updates[fundosDetail.updates.length - 1].vlr_total,
+      vlt_quota:
+        fundosDetail.updates[fundosDetail.updates.length - 1].vlt_quota,
+      captc_dia:
+        fundosDetail.updates[fundosDetail.updates.length - 1].captc_dia,
+      resg_dia: fundosDetail.updates[fundosDetail.updates.length - 1].resg_dia,
+      nr_cotst: fundosDetail.updates[fundosDetail.updates.length - 1].nr_cotst,
+    };
+  }
+
+  return response;
+};
+
+export const getChart = async (
+  fundos: string[],
+  from?: string,
+  to?: string
+): Promise<{ name: string; rentab: IRentability[] }[]> => {
+  const fundosQuery = await prisma.fundo.findMany({
+    where: {
+      cnpj_fundo: {
+        in: fundos,
+      },
+    },
+    include: {
+      updates: {
+        where: {
+          dt_comptc: {
+            gte: from ? new Date(from) : undefined,
+            lte: to ? new Date(to) : undefined,
+          },
+        },
+        orderBy: {
+          dt_comptc: 'asc',
+        },
+      },
+    },
+  });
+
+  const fundosResponse = [];
+
+  // eslint-disable-next-line
+  for (const fundo of fundosQuery) {
+    const fundoRent: IRentability[] = [];
+    const quota1 = parseFloat(fundo.updates[0].vlt_quota || '1');
+    fundo.updates.forEach((update) => {
+      const rentabilidade = parseFloat(update.vlt_quota || '1') / quota1 - 1;
+      fundoRent.push({
+        diff: rentabilidade,
+        date: update.dt_comptc?.toISOString() || '',
+      });
+    });
+    fundosResponse.push({
+      name: fundo.cnpj_fundo,
+      rentab: fundoRent,
+    });
+  }
+
+  return fundosResponse;
 };

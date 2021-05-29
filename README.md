@@ -26,6 +26,14 @@ basta utilizar o seguinte comando para apagar volumes que não estão sendo util
 $ docker volume prune
 ```
 
+## Swagger
+
+Depois de executar o programa, basta acessar a seguinte URL para ver o swagger com a explicação de todas as rotas disponibilizadas pela API:
+
+```
+localhost:4000/doc/
+```
+
 ## Alguns comandos para minupulação do postgres
 
 '''

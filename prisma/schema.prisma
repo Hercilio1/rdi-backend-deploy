@@ -55,10 +55,10 @@ model Fundo_Update {
   vlt_quota       String?
   captc_dia       String?
   resg_dia        String?
-  rentabilidade   String?
   tp_fundo        String?
   dt_comptc       DateTime?
   vl_patrim_liq   String?
   nr_cotst        String?
   Fundo           Fundo @relation(fields: [cnpj_fundo], references: [cnpj_fundo])
+  @@unique([cnpj_fundo, dt_comptc])
 }

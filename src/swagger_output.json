@@ -1,0 +1,420 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Radar do Investidor",
+    "description": "Documentação do backend da aplicação Radar do Investidor."
+  },
+  "host": "localhost:4000",
+  "basePath": "/",
+  "tags": [
+    "Raiz"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "tags": [
+    {
+      "name": "Raiz",
+      "description": "Raiz da aplicação."
+    },
+    {
+      "name": "Rotas",
+      "description": "Funções de rotas do banco de dados."
+    }
+  ],
+  "paths": {
+    "/api": {
+      "get": {
+        "tags": [
+          "Raiz"
+        ],
+        "summary": "Testa se a aplicação está ativa.",
+        "description": "Retorna \"Hello World\" indicando que a aplicação está ativa.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/pesquisa": {
+      "get": {
+        "tags": [
+          "Rotas"
+        ],
+        "summary": "Retorna uma lista de fundos filtrada por uma string.",
+        "description": "Retorna os fundos encontrados no banco de dados, filtrados por uma string comparada com as colunas de denominação social e cnpj do fundo.\n\nRetorna um objeto com as seguintes informações do fundo: denominação social, cnpj, patrimonio líquido, classe e número de cotistas.",
+        "operationId": "pesquisa",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "s",
+            "in": "query",
+            "description": "Recebe palavras e números para realizar a pesquisa no banco de dados.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/fundo/{cnpj_fundo}": {
+      "get": {
+        "tags": [
+          "Rotas"
+        ],
+        "summary": "Busca um fundo a partir de um cnpj.",
+        "description": "Retorna todas informações do fundo encontrado a partir do cnpj fornecido.",
+        "operationId": "fundo/:cnpj",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj_fundo",
+            "in": "path",
+            "description": "Recebe um cnpj, no formato padrão e.g. 97.929.213/0001-34, para realizar a pesquisa no banco de dados.\n\nPS: O Swagger já faz o Encoding da URL, mas pode ser que em outro lugar não faça.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/fundo": {
+      "post": {
+        "tags": [
+          "Rotas"
+        ],
+        "summary": "Adiciona um novo fundo no banco de dados.",
+        "description": "Passa o modelo das tabelas em json como parametro.\n\nRetorna as mensagens http indicando se concluiu, ou não, a operação.\n\nRota em testes❗",
+        "operationId": "fundo",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "cnpj",
+            "description": "Passa o modelo dos dados de um fundo.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fundo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/update": {
+      "post": {
+        "tags": [
+          "Rotas"
+        ],
+        "summary": "Adiciona os dados que atualizam com maior frequência.",
+        "description": "Passa o id e os novos dados do modelo, para adicionar na tabela de Fundo_Update.",
+        "operationId": "update",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "cnpj_fundo",
+            "description": "Passa o modelo de dados de um fundo. Respeitar o formato do modelo exemplo fornecido.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fundo_update"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "fundo": {
+      "type": "object",
+      "required": [
+        "cnpj_fundo"
+      ],
+      "properties": {
+        "cnpj_fundo": {
+          "type": "string",
+          "description": "CNPJ do fundo de investimento.",
+          "example": "97.929.213/0001-34"
+        },
+        "auditor": {
+          "type": "string",
+          "description": "Nome do Auditor.",
+          "example": "MOORE STEPHENS PRIME AUDITORES E CONSULTORES SOCIEDADE SIMPLES"
+        },
+        "cnpj_auditor": {
+          "type": "string",
+          "description": "CNPJ do auditor.",
+          "example": "61.366.936/0001-25"
+        },
+        "denom_social": {
+          "type": "string",
+          "description": "Denominação Social.",
+          "example": "WMBB FF0312 FUNDO DE INVESTIMENTO EM COTAS DE FUNDOS DE INVESTIMENTO MULTIMERCADO CRÉDITO PRIVADO"
+        },
+        "dt_const": {
+          "type": "string",
+          "format": "date",
+          "description": "Data de constituição.",
+          "example": "2021-12-31"
+        },
+        "dt_cancel": {
+          "type": "string",
+          "format": "date",
+          "description": "Data de cancelamento.",
+          "example": "2021-12-31"
+        },
+        "admin": {
+          "type": "string",
+          "description": "Nome do Administrador.",
+          "example": "BANCO CREDITO REAL DE MG SA"
+        },
+        "cd_cvm": {
+          "type": "string",
+          "description": "Número de autenticação do CVM.",
+          "example": "599001"
+        },
+        "dt_fim_exerc": {
+          "type": "string",
+          "format": "date",
+          "description": "Data fim do exercício social.",
+          "example": "2021-12-31"
+        },
+        "classe": {
+          "type": "string",
+          "description": "Classe do fundo de investimento (Renda Fixa, Ações, Cambial, ou Multimercado).",
+          "example": "Multimercado"
+        },
+        "dt_ini_ativ": {
+          "type": "string",
+          "format": "date",
+          "description": "Data de início de atividade.",
+          "example": "2021-12-31"
+        },
+        "cnpj_admin": {
+          "type": "string",
+          "format": "date",
+          "description": "CNPJ do Administrador.",
+          "example": "21.562.962/0001-04"
+        },
+        "dt_ini_classe": {
+          "type": "string",
+          "format": "date",
+          "description": "Data de início na classe.",
+          "example": "2021-12-31"
+        },
+        "dt_ini_exerc": {
+          "type": "string",
+          "format": "date",
+          "description": "Data início do exercício social.",
+          "example": "2021-12-31"
+        },
+        "condom": {
+          "type": "string",
+          "description": "Forma de condomínio (Aberto ou Fechado).",
+          "example": "Aberto"
+        },
+        "dt_ini_sit": {
+          "type": "string",
+          "format": "date",
+          "description": "Data de início da situação.",
+          "example": "2021-12-31"
+        },
+        "cpf_cnpj_gestor": {
+          "type": "string",
+          "description": "Informa o número de identificação do gestor pessoa física ou jurídica.",
+          "example": "30.822.936/0001-69"
+        },
+        "sit": {
+          "type": "string",
+          "description": "Situação do fundo.",
+          "example": "EM FUNCIONAMENTO NORMAL"
+        },
+        "rentab_fundo": {
+          "type": "string",
+          "description": "Forma de rentabilidade do fundo (indicador de desempenho).",
+          "example": "Índice de Preços ao Consumidor Amplo (IPCA/IBGE)"
+        },
+        "pf_pj_gestor": {
+          "type": "string",
+          "description": "Indica se o gestor é pessoa física ou jurídica (PF ou PJ).",
+          "example": "PJ"
+        },
+        "invest_qualif": {
+          "type": "string",
+          "description": "Indica se é destinado a investidores qualificados (S ou N).",
+          "example": "S"
+        },
+        "vl_patrim_liq": {
+          "type": "string",
+          "description": "Valor do patrimônio líquido.",
+          "example": "10193552590.37"
+        },
+        "gestor": {
+          "type": "string",
+          "description": "Nome do gestor.",
+          "example": "PRINCIPIA CAPITAL MANAGEMENT ADMINISTRADORA DE CARTEIRA DE VALORES MOBILIARIOS LTDA"
+        },
+        "trib_lprazo": {
+          "type": "string",
+          "description": "Indica se possui tributação de longo prazo (S ou N) .",
+          "example": "N"
+        },
+        "fundo_exclusivo": {
+          "type": "string",
+          "description": "Indica se é fundo exclusivo (S ou N).",
+          "example": "S"
+        },
+        "tp_fundo": {
+          "type": "string",
+          "description": "Tipo de Fundo (Por padrão, usar FI).",
+          "example": "FMP-FGTS CL"
+        },
+        "fundo_cotas": {
+          "type": "string",
+          "description": "Indica se é fundo de cotas (S ou N).",
+          "example": "S"
+        },
+        "taxa_perfm": {
+          "type": "string",
+          "description": "Taxa de performance.",
+          "example": "27.5"
+        },
+        "dt_patrim_liq": {
+          "type": "string",
+          "format": "date",
+          "description": "Data do patrimônio líquido.",
+          "example": "2021-12-31"
+        },
+        "taxa_adm": {
+          "type": "string",
+          "description": "Taxa de administração.",
+          "example": "8.97"
+        }
+      }
+    },
+    "fundo_update": {
+      "type": "array",
+      "items": {
+      "type": "object",
+        "required": [
+          "cnpj_fundo",
+          "dt_comptc"
+        ],
+        "properties": {
+          "cnpj_fundo": {
+            "type": "string",
+            "description": "CNPJ do fundo de investimento.",
+            "example": "00.071.477/0001-68"
+          },
+          "dt_comptc": {
+            "type": "string",
+            "format": "date",
+            "description": "Data de registro do fundo.",
+            "example": "2021-12-31"
+          },
+          "vlr_total": {
+            "type": "string",
+            "description": "Valor total.",
+            "example": "9998726291.38"
+          },
+          "vlt_quota": {
+            "type": "string",
+            "description": "Valor da quota.",
+            "example": "142.618.854.585.864.000.000"
+          },
+          "captc_dia": {
+            "type": "string",
+            "description": "Captação diária.",
+            "example": "9922981787.48"
+          },
+          "resg_dia": {
+            "type": "string",
+            "description": "Resgate diário.",
+            "example": "99913218.53"
+          },
+          "tp_fundo": {
+            "type": "string",
+            "description": "Tipo de Fundo (Por padrão, usar FI).",
+            "example": "FACFIF"
+          },
+          "vl_patrim_liq": {
+            "type": "string",
+            "description": "Valor do patrimônio líquido.",
+            "example": "9996233502.87"
+          },
+          "nr_cotst": {
+            "type": "string",
+            "description": "Número de cotistas.",
+            "example": "984773"
+          }
+        }
+      }
+    }
+  }
+}
