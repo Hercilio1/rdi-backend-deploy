@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import prisma from '../database/prisma';
 import {
   IFunds,
@@ -6,6 +7,8 @@ import {
   IFundDetails,
   IRentability,
 } from './interface';
+import accumulate from '../utils/accumulate';
+import getBenchmark from "../benchmarks/benchmarks";
 
 export const addFundInfo = async (file: IFunds): Promise<void> => {
   const funds = Object.entries(file);
@@ -302,6 +305,14 @@ export const getChart = async (
   from?: string,
   to?: string
 ): Promise<{ name: string; rentab: IRentability[] }[]> => {
+  const cdiBenchmark = await getBenchmark(
+    'CDI',
+    from ? dayjs(from).format('DD/MM/YYYY') : undefined,
+    to ? dayjs(to).format('DD/MM/YYYY') : undefined
+  );
+
+  const cdiRentability = accumulate(cdiBenchmark);
+
   const fundosQuery = await prisma.fundo.findMany({
     where: {
       cnpj_fundo: {
@@ -330,17 +341,22 @@ export const getChart = async (
     const fundoRent: IRentability[] = [];
     const quota1 = parseFloat(fundo.updates[0].vlt_quota || '1');
     fundo.updates.forEach((update) => {
-      const rentabilidade = parseFloat(update.vlt_quota || '1') / quota1 - 1;
+      const rentabilidade = (parseFloat(update.vlt_quota || '1') / quota1 - 1) * 100;
       fundoRent.push({
-        diff: rentabilidade,
+        diff: parseFloat(rentabilidade.toFixed(3)),
         date: update.dt_comptc?.toISOString() || '',
       });
     });
     fundosResponse.push({
-      name: fundo.cnpj_fundo,
+      name: fundo.denom_social || "",
       rentab: fundoRent,
     });
   }
+
+  fundosResponse.push({
+    name: 'CDI',
+    rentab: cdiRentability,
+  });
 
   return fundosResponse;
 };

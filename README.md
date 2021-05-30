@@ -36,14 +36,14 @@ localhost:4000/doc/
 
 ## Alguns comandos para minupulação do postgres
 
-'''
+```
 $ docker exec -it warren-db bash
 $ psql warren warren
 $ \x
 $ select * from public."Fundo";
 $ select count(*) from public."Fundo";
 $ delete from public."Fundo";
-'''
+```
 
 ## Deploy
 ```
@@ -66,12 +66,4 @@ Pause a ECS task para gerar uma nova task com a última versão:
     - Acesse o cluster: rdi-frontend-cluster
     - Vá para tab > tasks
     - Puase (stop) as tasks relacionadas a task definition "rdi-backend-task"
-
-
-- Task definition revision
-    Criar nova revisão trocando a URL do container pela última versão registrada no ECR
-
-- ECS Service
-    name: rdi-backend-ecs-service
-    subnet: PrivateSubnet1A
 ```
