@@ -8,7 +8,7 @@ import {
   IRentability,
 } from './interface';
 import accumulate from '../utils/accumulate';
-import getBenchmark from "../benchmarks/benchmarks";
+import getBenchmark from '../benchmarks/benchmarks';
 
 export const addFundInfo = async (file: IFunds): Promise<void> => {
   const funds = Object.entries(file);
@@ -278,24 +278,29 @@ export const getFundDetails = async (
   });
 
   let response = {};
-
-  if (fundosDetail) {
-    response = {
-      ...fundosDetail,
-      updates: undefined,
-      tp_fundo: fundosDetail.updates[fundosDetail.updates.length - 1].tp_fundo,
-      dt_comptc:
-        fundosDetail.updates[fundosDetail.updates.length - 1].dt_comptc,
-      vlr_total:
-        fundosDetail.updates[fundosDetail.updates.length - 1].vlr_total,
-      vlt_quota:
-        fundosDetail.updates[fundosDetail.updates.length - 1].vlt_quota,
-      captc_dia:
-        fundosDetail.updates[fundosDetail.updates.length - 1].captc_dia,
-      resg_dia: fundosDetail.updates[fundosDetail.updates.length - 1].resg_dia,
-      nr_cotst: fundosDetail.updates[fundosDetail.updates.length - 1].nr_cotst,
-    };
-  }
+  try {
+    if (fundosDetail) {
+      response = {
+        ...fundosDetail,
+        updates: undefined,
+        tp_fundo: fundosDetail.updates[fundosDetail.updates.length - 1].tp_fundo,
+        dt_comptc:
+          fundosDetail.updates[fundosDetail.updates.length - 1].dt_comptc,
+        vlr_total:
+          fundosDetail.updates[fundosDetail.updates.length - 1].vlr_total,
+        vlt_quota:
+          fundosDetail.updates[fundosDetail.updates.length - 1].vlt_quota,
+        captc_dia:
+          fundosDetail.updates[fundosDetail.updates.length - 1].captc_dia,
+        resg_dia: fundosDetail.updates[fundosDetail.updates.length - 1].resg_dia,
+        nr_cotst: fundosDetail.updates[fundosDetail.updates.length - 1].nr_cotst,
+      };
+    } 
+  } catch (e) {
+      console.error(
+        `Error when getting details of the fund \n error: ${e}`
+      );
+    }
 
   return response;
 };
@@ -337,20 +342,41 @@ export const getChart = async (
   const fundosResponse = [];
 
   // eslint-disable-next-line
-  for (const fundo of fundosQuery) {
-    const fundoRent: IRentability[] = [];
-    const quota1 = parseFloat(fundo.updates[0].vlt_quota || '1');
-    fundo.updates.forEach((update) => {
-      const rentabilidade = (parseFloat(update.vlt_quota || '1') / quota1 - 1) * 100;
-      fundoRent.push({
-        diff: parseFloat(rentabilidade.toFixed(3)),
-        date: update.dt_comptc?.toISOString() || '',
+  try {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const fundo of fundosQuery) {
+      const fundoRent: IRentability[] = [];
+      if (fundo.updates.length < 1) {
+        fundosResponse.push({
+          name: fundo.denom_social || '',
+          rentab: [],
+        });
+        continue;
+      }
+      const quota1 = parseFloat(fundo.updates[0].vlt_quota || '1');
+      fundo.updates.forEach((update) => {
+        try {
+          const rentabilidade =
+            (parseFloat(update.vlt_quota || '1') / quota1 - 1) * 100;
+          fundoRent.push({
+            diff: parseFloat(rentabilidade.toFixed(3)),
+            date: update.dt_comptc?.toISOString() || '',
+          });
+        } catch (e) {
+          console.error(
+            `Error in the generation of the profitability of the fund ${fundo.cnpj_fundo} \n error: ${e}`
+          );
+        }
       });
-    });
-    fundosResponse.push({
-      name: fundo.denom_social || "",
-      rentab: fundoRent,
-    });
+      fundosResponse.push({
+        name: fundo.denom_social || '',
+        rentab: fundoRent,
+      });
+    }
+  } catch (e) {
+    console.error(
+      `Error in the generation of the profitability of the funds ${e}`
+    );
   }
 
   fundosResponse.push({
