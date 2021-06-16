@@ -283,17 +283,17 @@ export const getFundDetails = async (
       response = {
         ...fundosDetail,
         updates: undefined,
-        tp_fundo: fundosDetail.updates[fundosDetail.updates.length - 1].tp_fundo,
+        tp_fundo: fundosDetail.updates[fundosDetail.updates.length - 1]?.tp_fundo,
         dt_comptc:
-          fundosDetail.updates[fundosDetail.updates.length - 1].dt_comptc,
+          fundosDetail.updates[fundosDetail.updates.length - 1]?.dt_comptc,
         vlr_total:
-          fundosDetail.updates[fundosDetail.updates.length - 1].vlr_total,
+          fundosDetail.updates[fundosDetail.updates.length - 1]?.vlr_total,
         vlt_quota:
-          fundosDetail.updates[fundosDetail.updates.length - 1].vlt_quota,
+          fundosDetail.updates[fundosDetail.updates.length - 1]?.vlt_quota,
         captc_dia:
-          fundosDetail.updates[fundosDetail.updates.length - 1].captc_dia,
-        resg_dia: fundosDetail.updates[fundosDetail.updates.length - 1].resg_dia,
-        nr_cotst: fundosDetail.updates[fundosDetail.updates.length - 1].nr_cotst,
+          fundosDetail.updates[fundosDetail.updates.length - 1]?.captc_dia,
+        resg_dia: fundosDetail.updates[fundosDetail.updates.length - 1]?.resg_dia,
+        nr_cotst: fundosDetail.updates[fundosDetail.updates.length - 1]?.nr_cotst,
       };
     } 
   } catch (e) {
@@ -385,4 +385,34 @@ export const getChart = async (
   });
 
   return fundosResponse;
+};
+
+
+export const getComparacao = async (
+  fund: string[]
+): Promise<IInitialFundData[]> => {
+  const fundoArray = await prisma.fundo.findMany({
+    where: {
+      cnpj_fundo: {
+        in: fund,
+      },
+    },
+    select: {
+      denom_social: true,
+      cnpj_fundo: true,
+      vl_patrim_liq: true,
+      classe: true,
+      updates: {
+        select: {
+          nr_cotst: true,
+        },
+      },
+    },
+  });
+
+  return fundoArray.map((fundo) => ({
+    ...fundo,
+    updates: undefined,
+    nr_cotst: fundo.updates[fundo.updates.length - 1]?.nr_cotst,
+  }));
 };

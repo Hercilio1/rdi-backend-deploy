@@ -49,6 +49,7 @@ $ delete from public."Fundo";
 ```
 Baixar Github de deploy:
     - Clone seguinte projeto na mesma pasta em que o projeto backend foi clonado (CUIDADO: não misture os fontes): https://github.com/Hercilio1/rdi-backend-deploy
+    - É necessário ter permissão de colaborador neste projeto para realizar o deploy.
 
 Sincronize com o Github de deploy:
     - Rode o comando: $ sh deploy.sh

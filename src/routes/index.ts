@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import {
   addFundInfo,
   fundUpdate,
-  getChart,
+  getChart, getComparacao,
   getFundDetails,
   getFunds,
 } from '../controllers/fund';
@@ -57,6 +57,26 @@ routes.get('/rentabilidade', async (req: Request, res: Response) => {
       to as string | undefined
     );
     res.send(fundsChart);
+  } catch (e) {
+    res.status(400).send({
+      error: 'Failed to create chart response',
+    });
+  }
+});
+
+routes.get('/fundosComparacao', async (req: Request, res: Response) => {
+  try {
+    const {fundos} = req.query;
+    if (!fundos) {
+      res.status(400).send({ error: 'Error in API request' });
+      return;
+    }
+
+    const fundsComparacao = await getComparacao(
+      fundos as string[],
+    );
+
+    res.send(fundsComparacao);
   } catch (e) {
     res.status(400).send({
       error: 'Failed to create chart response',
