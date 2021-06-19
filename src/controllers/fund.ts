@@ -9,6 +9,8 @@ import {
 } from './interface';
 import accumulate from '../utils/accumulate';
 import getBenchmark from '../benchmarks/benchmarks';
+import { updateSourceFile, visitFunctionBody } from 'typescript';
+import { kMaxLength } from 'buffer';
 
 export const addFundInfo = async (file: IFunds): Promise<void> => {
   const funds = Object.entries(file);
@@ -125,21 +127,38 @@ export const addFundInfo = async (file: IFunds): Promise<void> => {
 
 export const getFunds = async (
   search?: string,
-  skip?: string
+  skip?: string,
+  classes?: string[],
+  pl?: string,
+  cotistas?: string
 ): Promise<IInitialFundData[]> => {
   const fundos = await prisma.fundo.findMany({
     where: {
-      OR: [
+      AND: [
         {
-          denom_social: {
-            contains: search || '',
-            mode: 'insensitive',
+          OR: [
+            {
+              denom_social: {
+                contains: search || '',
+                mode: 'insensitive',
+              },
+            },
+            {
+              cnpj_fundo: {
+                contains: search || '',
+                mode: 'insensitive',
+              },
+            },
+          ],
+        },
+        {
+          classe: {
+            in: classes,
           },
         },
         {
-          cnpj_fundo: {
-            contains: search || '',
-            mode: 'insensitive',
+          vl_patrim_liq: {
+            gte: pl,
           },
         },
       ],
@@ -158,11 +177,23 @@ export const getFunds = async (
     take: 50,
     skip: skip ? parseInt(skip, 10) : 0,
   });
-  return fundos.map((fund) => ({
-    ...fund,
-    updates: undefined,
-    nr_cotst: fund.updates[fund.updates.length - 1]?.nr_cotst,
-  }));
+  const searchList = fundos
+    .map((fund) => {
+      if (
+        (fund.updates[fund.updates.length - 1]?.nr_cotst || 0) >=
+        (cotistas || 0)
+      ) {
+        return {
+          ...fund,
+          updates: undefined,
+          nr_cotst: fund.updates[fund.updates.length - 1]?.nr_cotst,
+        };
+      }
+      return undefined;
+    })
+    .filter((x) => x);
+
+  return searchList as IInitialFundData[];
 };
 
 export const fundUpdate = async (file: IUpdate[]): Promise<void> => {
@@ -315,6 +346,8 @@ export const getChart = async (
     from ? dayjs(from).format('DD/MM/YYYY') : undefined,
     to ? dayjs(to).format('DD/MM/YYYY') : undefined
   );
+//  console.log(from)
+// console.log(new Date(from && from === "" ? from : "2015-06-18"))
 
   const cdiRentability = accumulate(cdiBenchmark);
 
@@ -387,7 +420,6 @@ export const getChart = async (
   return fundosResponse;
 };
 
-
 export const getComparacao = async (
   fund: string[]
 ): Promise<IInitialFundData[]> => {
@@ -415,4 +447,59 @@ export const getComparacao = async (
     updates: undefined,
     nr_cotst: fundo.updates[fundo.updates.length - 1]?.nr_cotst,
   }));
+};
+
+export const getVolatility = async (
+  fundos: string[],
+  from?: string,
+  to?: string
+): Promise<{ name: string; rentab: IRentability[] }[]> => {
+
+  const fundosQuery = await prisma.fundo.findMany({
+    where: {
+      cnpj_fundo: {
+        in: fundos,
+      },
+    },
+    include: {
+      updates: {
+        where: {
+          dt_comptc: {
+            gte: from ? new Date(from) : undefined,
+            lte: to ? new Date(to) : undefined,
+          },
+        },
+        orderBy: {
+          dt_comptc: 'asc',
+        },
+      },
+    },
+  });
+  const fundosResponse = [];
+  const math = require('mathjs');
+
+  // eslint-disable-next-line
+  for (const fundo of fundosQuery) {
+    const volatility: IRentability[] = [];
+    
+    const fundArrAux: number[] = [];
+    for(var i = 1; i < fundo.updates?.length; i++) {
+      fundArrAux.push(parseFloat(fundo.updates[i]?.vlt_quota || '1') - parseFloat(fundo.updates[i - 1]?.vlt_quota || '1'))
+    }
+
+    for (var i = 21; i < fundArrAux.length; i++) {
+      const aux = math.std(fundArrAux.slice(i-21, i)) * Math.sqrt(252);
+      volatility.push({
+        diff: parseFloat(aux.toFixed(3)),
+        date: fundo.updates[i]?.dt_comptc?.toISOString() || '',
+      });
+    }
+
+    fundosResponse.push({
+      name: fundo.denom_social || '',
+      rentab: volatility,
+    });
+  }
+
+  return fundosResponse;
 };

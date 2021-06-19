@@ -1,10 +1,13 @@
 import express, { Request, Response } from 'express';
+import { IRequestParams } from './interface';
 import {
   addFundInfo,
   fundUpdate,
-  getChart, getComparacao,
+  getChart,
+  getComparacao,
   getFundDetails,
   getFunds,
+  getVolatility,
 } from '../controllers/fund';
 import authentication from '../middleware/authentication';
 
@@ -16,20 +19,25 @@ routes.get('/', (req: Request, res: Response) => {
 });
 
 // Pesquisa por fundos no banco de dados, a partir de uma query param
-routes.get('/pesquisa', async (req: Request, res: Response) => {
-  try {
-    const param = req.query;
-    const fundos = await getFunds(
-      param?.s as string,
-      (param?.skip as unknown) as string
-    );
-    res.status(200).send(fundos);
-  } catch (e) {
-    res.status(400).send({
-      error: 'Failed to get funds from database',
-    });
+routes.get(
+  '/pesquisa',
+  async (req: Request<any, any, any, IRequestParams>, res: Response) => {
+    try {
+      const fundos = await getFunds(
+        req.query?.s,
+        req.query?.skip,
+        req.query?.classes,
+        req.query?.pl,
+        req.query?.cotistas
+      );
+      res.status(200).send(fundos);
+    } catch (e) {
+      res.status(400).send({
+        error: 'Failed to get funds from database',
+      });
+    }
   }
-});
+);
 
 // Retorna o primeiro fundo encontrado a partir de um cnpj
 routes.get('/fundo/:cnpj', async (req: Request, res: Response) => {
@@ -66,15 +74,13 @@ routes.get('/rentabilidade', async (req: Request, res: Response) => {
 
 routes.get('/fundosComparacao', async (req: Request, res: Response) => {
   try {
-    const {fundos} = req.query;
+    const { fundos } = req.query;
     if (!fundos) {
       res.status(400).send({ error: 'Error in API request' });
       return;
     }
 
-    const fundsComparacao = await getComparacao(
-      fundos as string[],
-    );
+    const fundsComparacao = await getComparacao(fundos as string[]);
 
     res.send(fundsComparacao);
   } catch (e) {
@@ -83,6 +89,27 @@ routes.get('/fundosComparacao', async (req: Request, res: Response) => {
     });
   }
 });
+
+routes.get('/volatilidade', async (req: Request, res: Response) => {
+  try {
+    const { fundos, from, to } = req.query;
+    if (!fundos) {
+      res.status(400).send({ error: 'Error in API request' });
+      return;
+    }
+    const volatility = await getVolatility(
+      fundos as string[],
+      from as string | undefined,
+      to as string | undefined
+    );
+    res.send(volatility);
+  } catch (e) {
+    res.status(400).send({
+      error: 'Failed to create chart response',
+    });
+  }
+});
+
 
 routes.use(authentication);
 
