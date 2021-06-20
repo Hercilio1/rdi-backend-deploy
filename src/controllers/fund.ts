@@ -180,8 +180,8 @@ export const getFunds = async (
   const searchList = fundos
     .map((fund) => {
       if (
-        (fund.updates[fund.updates.length - 1]?.nr_cotst || 0) >=
-        (cotistas || 0)
+        parseInt(fund.updates[fund.updates.length - 1]?.nr_cotst || '0', 10) >=
+        parseInt(cotistas || '0', 10)
       ) {
         return {
           ...fund,
