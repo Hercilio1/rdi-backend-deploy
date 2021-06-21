@@ -21,7 +21,7 @@ const accumulate = (
         diff: parseFloat(
           (
             (parseFloat(entry.valor) + 1) *
-              (accumulation[accumulation.length - 1].diff + 1) -
+              ((accumulation[accumulation.length - 1].diff || 0) + 1) -
             1
           ).toFixed(4)
         ),

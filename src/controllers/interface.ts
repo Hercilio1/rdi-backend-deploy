@@ -94,5 +94,5 @@ export interface IFundDetails {
 
 export interface IRentability {
   date: string;
-  diff: number;
+  diff: number | null;
 }

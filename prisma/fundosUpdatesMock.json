@@ -1,6 +1,6 @@
 [
     {"cnpj_fundo": "00001", "tp_fundo": "FI", "dt_comptc": "2021-01-01", "vlr_total": 1088923.79, "vlt_quota": 27.5028612, "vl_patrim_liq": 1085527.59, "captc_dia": 0.0, "resg_dia": 0.0, "nr_cotst": 1},
-    {"cnpj_fundo": "00002", "tp_fundo": "FI", "dt_comptc": "2021-01-01", "vlr_total": 42714570.85, "vlt_quota": 27.460751, "vl_patrim_liq": 42698617.85, "captc_dia": 0.0, "resg_dia": 17551.51, "nr_cotst": 7063},
+    {"cnpj_fundo": "00002", "tp_fundo": "FI", "dt_comptc": "2021-01-01", "vlr_total": 42714570.85, "vlt_quota": 0.460751, "vl_patrim_liq": 42698617.85, "captc_dia": 0.0, "resg_dia": 17551.51, "nr_cotst": 7063},
     {"cnpj_fundo": "00003", "tp_fundo": "FI", "dt_comptc": "2021-01-01", "vlr_total": 42714570.85, "vlt_quota": 30, "vl_patrim_liq": 42698617.85, "captc_dia": 0.0, "resg_dia": 17551.51, "nr_cotst": 7063},
     {"cnpj_fundo": "00004", "tp_fundo": "FI", "dt_comptc": "2021-01-01", "vlr_total": 17246018.42, "vlt_quota": 28.88606, "vl_patrim_liq": 17239974.16, "captc_dia": 0.0, "resg_dia": 0.0, "nr_cotst": 933},
     {"cnpj_fundo": "00005", "tp_fundo": "FI", "dt_comptc": "2021-01-01", "vlr_total": 17172226361.07, "vlt_quota": 736.45282767, "vl_patrim_liq": 17162936603.89, "captc_dia": 0.0, "resg_dia": 0.0, "nr_cotst": 4},
