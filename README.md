@@ -26,6 +26,14 @@ basta utilizar o seguinte comando para apagar volumes que não estão sendo util
 $ docker volume prune
 ```
 
+4. Arquivo .env:
+```
+Adicionar um arquivo na raiz do projeto com o nome ".env".
+O arquivo deve ter como conteúdo:
+$ DATABASE_URL="postgresql://<db_username>:<db_passowrd>@postgres:5432/<db_name>"
+$ API_KEY="<api_key>"
+```
+
 ## Swagger
 
 Depois de executar o programa, basta acessar a seguinte URL para ver o swagger com a explicação de todas as rotas disponibilizadas pela API:

@@ -23,7 +23,7 @@ const accumulate = (
             (parseFloat(entry.valor) + 1) *
               ((accumulation[accumulation.length - 1].diff || 0) + 1) -
             1
-          ).toFixed(4)
+          ).toFixed(2)
         ),
       });
     }

@@ -156,11 +156,6 @@ export const getFunds = async (
             in: classes,
           },
         },
-        {
-          vl_patrim_liq: {
-            gte: pl,
-          },
-        },
       ],
     },
     select: {
@@ -181,7 +176,9 @@ export const getFunds = async (
     .map((fund) => {
       if (
         parseInt(fund.updates[fund.updates.length - 1]?.nr_cotst || '0', 10) >=
-        parseInt(cotistas || '0', 10)
+        parseInt(cotistas || '0', 10) 
+        &&
+        parseFloat(fund.vl_patrim_liq || '0') >= parseFloat(pl || '0')
       ) {
         return {
           ...fund,
@@ -397,7 +394,7 @@ export const getChart = async (
             (parseFloat(update.vlt_quota || '1') / quota1 - 1) * 100;
           fundoRent.map((data) => {
             if (data.date == (update.dt_comptc?.toISOString())) {
-              data.diff = rentabilidade;
+              data.diff = parseFloat(rentabilidade.toFixed(2));
             }
           }); 
         } catch (e) {
